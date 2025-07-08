@@ -1,214 +1,195 @@
 # 📚 Quantum Book Store
 
-**Quantum Book Store** is a simple, object-oriented Java application simulating an online book store. It demonstrates good software design principles such as inheritance, abstraction, and extensibility, while remaining beginner-friendly.
+**Quantum Book Store** is a comprehensive Java application that simulates an online bookstore management system. This project demonstrates object-oriented programming principles including inheritance, polymorphism, abstraction, and exception handling.
 
 ---
 
 ## 🚀 Features
 
-- Manage an inventory of different types of books:
-  - **PaperBook**: Has stock and supports shipping.
-  - **EBook**: Delivered via email in a specific file format.
-  - **ShowcaseBook**: Display-only book that cannot be purchased.
-- Add books with details: ISBN, title, publish year, price, and author.
-- Remove outdated books based on publication year.
-- Buy books using ISBN and quantity:
-  - Automatically handles stock reduction.
-  - Simulates sending books via shipping or email.
-  - Calculates and displays total amount paid.
-- All system messages are prefixed with `Quantum book store`.
+### 📖 Book Management
+- **Multiple Book Types**: Support for different book formats
+  - [`PaperBook`](models/PaperBook.java): Physical books with stock management
+  - [`EBook`](models/EBook.java): Digital books with file format support
+  - [`ShowcaseBook`](models/ShowcaseBook.java): Display-only books (not for sale)
+
+### 🛒 Inventory Operations
+- Add books to inventory with validation
+- Purchase books with automatic stock management
+- Remove outdated books based on publication year
+- Display complete inventory with detailed information
+- Duplicate book prevention
+
+### 🚚 Delivery Services
+- **Physical Books**: Automated shipping via [`ShippingService`](services/ShippingService.java)
+- **Digital Books**: Email delivery via [`MailService`](services/MailService.java)
+- **Showcase Books**: No delivery (display only)
+
+### 🔧 Exception Handling
+- [`InvalidInputException`](exceptions/InvalidInputException.java): Invalid parameters
+- [`BookNotFoundException`](exceptions/BookNotFoundException.java): Book not in inventory
+- [`InsufficientStockException`](exceptions/InsufficientStockException.java): Not enough stock
+- [`BookNotForSaleException`](exceptions/BookNotForSaleException.java): Showcase books
+- [`DuplicateBookException`](exceptions/DuplicateBookException.java): Duplicate ISBN
 
 ---
 
-## 🧱 Project Structure
+## 📁 Project Structure
 
 ```
 QuantumBookStore/
-│
-├── models/                    # Book classes
-│   ├── Book.java             # Abstract base class
-│   ├── PaperBook.java        # Physical book with stock
-│   ├── EBook.java            # Digital book with file type
-│   └── ShowcaseBook.java     # Display-only, not for sale
-│
-├── services/                  # Services and logic
-│   ├── InventoryManager.java # Core inventory logic
-│   ├── MailService.java      # Mock email delivery
-│   └── ShippingService.java  # Mock shipping delivery
-│
-├── utils/                     # Constants and helpers
-│   └── Constants.java        # Application constants
-│
-└── QuantumBookstoreFullTest.java # Main class to test the app
+├── models/                     # Book entity classes
+│   ├── Book.java              # Abstract base class
+│   ├── PaperBook.java         # Physical book implementation
+│   ├── EBook.java             # Digital book implementation
+│   └── ShowcaseBook.java      # Display-only book
+├── services/                   # Business logic services
+│   ├── InventoryManager.java  # Core inventory operations
+│   ├── ShippingService.java   # Physical book delivery
+│   └── MailService.java       # Digital book delivery
+├── exceptions/                 # Custom exception classes
+│   ├── BookStoreException.java
+│   ├── InvalidInputException.java
+│   ├── BookNotFoundException.java
+│   ├── InsufficientStockException.java
+│   ├── BookNotForSaleException.java
+│   └── DuplicateBookException.java
+├── QuantumBookstoreFullTest.java  # Main test application
+└── README.md                  # Project documentation
 ```
 
 ---
 
-## 🧠 Design Principles Used
+## 💻 Usage Examples
 
-| Principle | Description |
-|----------|-------------|
-| **Abstraction** | `Book` is an abstract class with common properties and methods. |
-| **Inheritance** | Specific book types (PaperBook, EBook, ShowcaseBook) extend `Book`. |
-| **Polymorphism** | Delivery behavior is handled differently per book type via overridden methods. |
-| **Open/Closed Principle** | You can add new book types without modifying existing logic. |
-| **Separation of Concerns** | Business logic is separated into `InventoryManager`, and services are mocked. |
+### Creating Different Book Types
 
----
-
-## 🔧 How to Run
-
-1. **Compile the Java files:**
-   ```bash
-   cd QuantumBookStore
-   javac -d . models/*.java services/*.java utils/*.java *.java
-   ```
-
-2. **Run the test application:**
-   ```bash
-   java QuantumBookstoreFullTest
-   ```
-
----
-
-## 📖 Usage Examples
-
-### Adding Books
 ```java
 // Create inventory manager
 InventoryManager inventory = new InventoryManager();
 
-// Add a paper book
+// Add a physical book with stock
 PaperBook javaBook = new PaperBook(
-    "978-0134685991", 
-    "Effective Java", 
-    2018, 
-    45.99, 
-    "Joshua Bloch", 
-    15  // stock
+    "978-0134685991",
+    "Effective Java",
+    2018,
+    45.99,
+    "Joshua Bloch",
+    15  // initial stock
 );
-inventory.addBook(javaBook);
 
-// Add an e-book
+// Add a digital book
 EBook pythonBook = new EBook(
-    "978-1593279288", 
-    "Automate the Boring Stuff with Python", 
-    2019, 
-    29.99, 
-    "Al Sweigart", 
+    "978-1593279288",
+    "Python Programming",
+    2019,
+    29.99,
+    "Al Sweigart",
     "PDF"  // file format
 );
-inventory.addBook(pythonBook);
 
-// Add a showcase book
-ShowcaseBook rareBook = new ShowcaseBook(
-    "978-0131103627", 
-    "The C Programming Language", 
-    1988, 
-    89.99, 
+// Add a showcase book (not for sale)
+ShowcaseBook showcaseBook = new ShowcaseBook(
+    "978-0131103627",
+    "The C Programming Language",
+    1988,
+    89.99,
     "Brian Kernighan & Dennis Ritchie"
 );
-inventory.addBook(rareBook);
 ```
 
-### Purchasing Books
+### Inventory Operations
+
 ```java
-// Purchase paper books (reduces stock)
-double total1 = inventory.buyBooks("978-0134685991", 2);
+// Add books to inventory
+try {
+    inventory.addBook(javaBook);
+    inventory.addBook(pythonBook);
+    inventory.addBook(showcaseBook);
+} catch (InvalidInputException | DuplicateBookException e) {
+    System.out.println("Error: " + e.getMessage());
+}
 
-// Purchase e-books (unlimited stock)
-double total2 = inventory.buyBooks("978-1593279288", 1);
+// Purchase books
+try {
+    double total = inventory.buyBooks("978-0134685991", 2);
+    System.out.println("Total paid: $" + total);
+} catch (Exception e) {
+    System.out.println("Purchase failed: " + e.getMessage());
+}
 
-// Try to purchase showcase book (will fail)
-double total3 = inventory.buyBooks("978-0131103627", 1);
-```
-
-### Managing Inventory
-```java
-// Display all books
-inventory.displayInventory();
-
-// Remove outdated books (published before 2015)
+// Remove outdated books
 int removedCount = inventory.removeOutdatedBooks(2015);
-
-// Find specific book
-Book book = inventory.findBookByIsbn("978-0134685991");
-
-// Check inventory size
-int size = inventory.getInventorySize();
 ```
 
 ---
 
-## 🎯 Key Classes Overview
+## 🏗️ Design Patterns & Principles
 
-### Abstract Book Class
-- **Purpose**: Base class for all book types
-- **Key Methods**: `deliver()`, `canPurchase()`, `purchase()`
-- **Properties**: ISBN, title, publish year, price, author
+### Object-Oriented Design
+- **Inheritance**: All book types extend the abstract [`Book`](models/Book.java) class
+- **Polymorphism**: Different delivery methods for each book type
+- **Abstraction**: Abstract methods for `purchase()`, `canPurchase()`, and `deliver()`
+- **Encapsulation**: Private fields with controlled access via getters/setters
 
-### PaperBook Class
-- **Inheritance**: Extends `Book`
-- **Special Features**: Stock management, shipping delivery
-- **Behavior**: Stock decreases on purchase, uses `ShippingService`
+### Exception Handling
+- Custom exception hierarchy extending [`BookStoreException`](exceptions/BookStoreException.java)
+- Specific exceptions for different error scenarios
+- Proper error messages with context
 
-### EBook Class
-- **Inheritance**: Extends `Book`
-- **Special Features**: File format, email delivery
-- **Behavior**: Unlimited stock, uses `MailService`
-
-### ShowcaseBook Class
-- **Inheritance**: Extends `Book`
-- **Special Features**: Display-only, cannot be purchased
-- **Behavior**: Always returns false for `canPurchase()`
-
-### InventoryManager Class
-- **Purpose**: Core business logic for inventory management
-- **Key Methods**: `addBook()`, `buyBooks()`, `removeOutdatedBooks()`
-- **Features**: Validation, error handling, reporting
+### Service Layer
+- [`InventoryManager`](services/InventoryManager.java): Core business logic
+- [`ShippingService`](services/ShippingService.java): Physical delivery simulation
+- [`MailService`](services/MailService.java): Digital delivery simulation
 
 ---
 
-## 🧪 Test Coverage
+## 🧪 Testing
 
-The `QuantumBookstoreFullTest` class demonstrates:
+The [`QuantumBookstoreFullTest`](QuantumBookstoreFullTest.java) class provides comprehensive testing:
 
-1. ✅ Adding different types of books
-2. ✅ Successful purchases with stock management
-3. ✅ Failed purchase attempts (various scenarios)
-4. ✅ Removing outdated books by year
-5. ✅ Inventory display and management
-6. ✅ Error handling and validation
+1. **Book Addition**: Tests adding various book types
+2. **Inventory Display**: Shows current inventory status
+3. **Successful Purchases**: Tests valid purchase scenarios
+4. **Failed Purchases**: Tests error handling for invalid operations
+5. **Outdated Book Removal**: Tests cleanup functionality
+6. **Final Status**: Shows inventory after all operations
 
----
-
-## 🔮 Future Enhancements
-
-- 🛒 Shopping cart functionality
-- 💳 Payment processing integration
-- 👤 User account management
-- 📊 Sales reporting and analytics
-- 🔍 Advanced search and filtering
-- 📱 Mobile app compatibility
-- 🌐 Web interface
-- 💾 Database persistence
+### Test Coverage
+- ✅ All book types (Paper, E-Book, Showcase)
+- ✅ All exception scenarios
+- ✅ Stock management for physical books
+- ✅ Unlimited availability for digital books
+- ✅ Showcase book restrictions
+- ✅ Input validation
 
 ---
 
-## 👨‍💻 Development Notes
+## 📊 Sample Output
 
-- **Java Version**: Compatible with Java 8+
-- **Dependencies**: None (pure Java)
-- **Testing**: Manual testing via main method
-- **Architecture**: Object-oriented with clear separation of concerns
-- **Extensibility**: Easy to add new book types or services
+```
+============================================================
+     WELCOME TO QUANTUM BOOK STORE 
+============================================================
+
+TEST 1: Adding Books to Inventory
+Quantum book store: Added book to inventory: Effective Java
+Quantum book store: Added book to inventory: Design Patterns
+...
+
+TEST 3: Successful Book Purchases
+Purchasing 2 copies of Effective Java:
+Quantum book store: Successfully purchased 2 copies of Effective Java
+Quantum book store: Remaining stock: 13
+...
+```
 
 ---
+### Key Classes
 
-## 📝 License
+| Class | Purpose | Key Methods |
+|-------|---------|-------------|
+| [`Book`](models/Book.java) | Abstract base class | `purchase()`, `canPurchase()`, `deliver()` |
+| [`InventoryManager`](services/InventoryManager.java) | Core business logic | `addBook()`, `buyBooks()`, `removeOutdatedBooks()` |
+| [`ShippingService`](services/ShippingService.java) | Physical delivery | `ship()`, `generateTrackingNumber()` |
+| [`MailService`](services/MailService.java) | Digital delivery | `sendEmail()`, `sendNotification()` |
 
-This project is created for educational purposes and demonstrates object-oriented programming concepts in Java.
-
----
-
-**Happy Coding! 🚀**
